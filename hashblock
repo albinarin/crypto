@@ -1,0 +1,14 @@
+import hashlib
+import json
+def hash_block(index,  prev_hash):
+    str=(index+prev_hash).encode('utf-8')
+    hash=hashlib.sha256(str).hexdigest()
+    return  hash
+print(hash_block('2','haaaash'))
+def validate_blockchein(file_path):
+    with open(file_path, 'r', encoding='utf-8') as fh:  # открываем файл на чтение
+        data = json.load(fh)  # загружаем из файла данные в словарь data
+    # вот тут работа с файлом как хранится узнать
+        #НУЖЕН ПРИМЕР ФАЙЛА ДЛЯ ОТЛАДКИ
+        #ПРОХОЖУ ОТ НАЧАЛА ДО КОНЦА СЛОВАРЯ ВЫЗЫВАЯ ФУНКЦИЮ ХЭША БЛОКА
+        #ЕСЛИ КОНЕЧНЫЕ ХЭШИ СОВПАДАЮТ ВОЗВРАЩАЮ TRUE
