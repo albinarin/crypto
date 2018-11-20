@@ -2,6 +2,7 @@ import hashlib
 import json
 def hash_block(index,  prev_hash):
     str=(index+prev_hash).encode('utf-8')
+    #зависит от информации блока
     hash=hashlib.sha256(str).hexdigest()
     return  hash
 print(hash_block('2','haaaash'))
