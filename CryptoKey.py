@@ -3,13 +3,19 @@ import ecdsa
 import hashlib
 import codecs
 import sertif_center as sc
+import time
+import requests
+import time
+import base64
+import ecdsa
+import base58
 def PrivateKeyStr(private_key):
     return (binascii.hexlify(private_key.to_string()).decode('ascii').upper())
 def PrivateKey():
      private_key = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
      public_key = private_key.get_verifying_key()
-     if (sc.check_write(public_key) != True):
-         private_key=ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
+     if (sc.check_write(PublicKeyStr(public_key)) != True):
+        private_key=ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
      #print(binascii.hexlify(private_key.to_string()).decode('ascii').upper())
      #pstr = binascii.hexlify(private_key.to_string()).decode('ascii').upper()
      return private_key
@@ -89,3 +95,39 @@ a=Address(p)
 print(p)
 print(PublicKeyStr(k))
 print(a)
+def sign_ECDSA_msg(private_key , message):
+    """Подписываем сообщение для отправки
+    private ключ отправляем в виде p=PrivateKeyStr(pk)
+    return
+    signature: base58
+    message: str
+    """
+    # получаем timestamp, округляем, переводим в строку и кодируем
+
+    bmessage = message.encode()
+    sk = ecdsa.SigningKey.from_string(bytes.fromhex(private_key), curve=ecdsa.SECP256k1)
+    signature = base58.b58encode(sk.sign(bmessage))
+    #print(str(signature))
+    return signature,message
+# пример использования функции создания подписи
+sig, mes=sign_ECDSA_msg(p, 'hello')
+
+def validate_signature(public_key,signature,message):
+    """Проверяем правильность подписи. Это используется для доказательства того, что это вы
+    (а не кто-то еще), пытающийся совершить транзакцию за вас. Вызывается, когда пользователь
+    пытается отправить новую транзакцию.
+    public_key подается в виде строки с помощью функции PublicKeyStr(k)
+    signature result sign_ECDSA_msg base58
+    message result sign_ECDSA_msg
+    """
+
+
+    signature = base58.b58decode(signature)
+    vk = ecdsa.VerifyingKey.from_string(bytes.fromhex(public_key), curve=ecdsa.SECP256k1)
+    try:
+        return(vk.verify(signature, message.encode()))
+    except:
+        return False
+
+#пример использования функции валидации подписи
+print(validate_signature(PublicKeyStr(k), sig,mes))
